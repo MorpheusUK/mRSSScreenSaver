@@ -1,124 +1,176 @@
 # mRSS Screen Saver
 
-Windows 11 x64 C++20/Win32 screensaver, with darkmodelib settings and an Inno
-Setup 7 dynamic light/dark installer. Version 1.0.0.
+A Windows 11 screensaver that turns online image feeds into a photo slideshow.
+Add your favourite public feeds, choose how the pictures are displayed, and let
+the screensaver do the rest.
 
-- Installer: `build/dist/mRSSScreenSaver-1.0.0-x64-setup.exe`
-- Screensaver: `build/bin/Release/mRSSScreenSaver.scr`
-- [Testing guide](docs/TESTING.md)
-- [Agreed specification](docs/SPECIFICATION.md)
+It supports Media RSS, RSS and Atom image feeds, JSON Feed, and Peapix's Windows
+Spotlight and Bing image feeds. Images are cached locally for reuse.
 
-© 2026 MorpheusUK. All Rights Reserved. Original project code is licensed under
-[GNU GPL version 3.0 only](LICENSE) (GPL-3.0-only); third-party dependencies keep
-their own licenses. See [NOTICE.md](NOTICE.md).
+**Version 1.0.0 · Windows 11 x64 · C++/Win32 · GPL-3.0-only**
 
-## Build and test
+## Features
 
-Requirements: Visual Studio 2022 Desktop development with C++, Windows SDK,
-bundled CMake. Open this folder in Visual Studio, or use its CMake executable:
+- **Manage multiple feeds:** add, edit, remove and reorder feeds, with titles,
+  eligible-image counts, availability and local check/cache timestamps.
+- **Choose your playback:** sequential or random images, with an option to
+  balance the selection between feeds.
+- **Control the presentation:** fit or fill the screen, choose a background
+  colour, and set image and transition timings.
+- **Pick a transition:** none, fade, slide, cross-fade, flip, rotating cube,
+  collage, or pan & zoom. Random mode lets you choose which effects to include.
+- **Show image information:** optional title and author/credit captions, with
+  font, size, bold/italic, top/bottom positioning and a timed display.
+- **Filter your images:** maximum image age, mature/unrated content settings,
+  simple URL exclusions, and advanced Boolean or regular-expression filters.
+- **Use global settings or per-feed overrides** for image duration, maximum age
+  and metadata captions. New feeds inherit the global settings by default.
+- **Preview a feed** with Start, Previous, Play/Pause, Next and End controls.
+- **Import and export OPML feed lists**, or back up and restore all settings.
+- **Follow the Windows theme**, or select light or dark mode yourself.
+- **Show the same slideshow on multiple monitors**, with HDR brightness controls
+  for supported images and displays.
 
-```
-cmake --preset vs2022-x64
+## Install and get started
+
+1. Run `mRSSScreenSaver-1.0.0-x64-setup.exe`. If you are building from source,
+   see [Building](#building) below for how to create the installer.
+2. Choose a Start menu folder. You can also choose to make mRSS Screen Saver
+   your current screensaver during installation.
+3. Open **mRSS Screen Saver → Screen Saver Settings** from the Start menu.
+4. Click **Add…** to enter a feed URL, or **Import OPML…** to load a feed list.
+5. Select a feed and click **Preview…** to check its images.
+6. Adjust the global settings, then click **Apply** or **OK** to save.
+
+The installer registers the screensaver in Windows' Screen Saver Settings.
+Administrator permission is required for installation. The installed executable
+is `C:\Windows\System32\mRSSScreenSaver.scr`.
+
+## Feed and image support
+
+| Feed format | Supported image sources |
+| --- | --- |
+| RSS 2.0 and Atom | Media RSS image entries and image enclosures |
+| JSON Feed 1.0 / 1.1 | Item images and image attachments |
+| Peapix JSON | Windows Spotlight and Bing image feeds |
+
+Only still images are displayed: **JPEG, PNG, GIF, BMP, TIFF, WebP and
+HEIC/HEIF**. WebP and HEIC/HEIF depend on compatible Windows image codecs being
+installed; **Codec status** shows which optional decoders are available.
+Animated and multi-page files use their first frame, first page or primary still
+image, as appropriate. Videos, documents and executables are not supported.
+
+The app uses image links supplied by the feed. It does not scrape images from
+HTML descriptions or linked web pages. Feeds requiring a login are not supported:
+the app does not supply browser cookies or Windows credentials. URLs containing
+access tokens are supported. HTTPS is the default; HTTP can be enabled per feed.
+
+### Example feeds
+
+- [Flickr: photos tagged monument](https://api.flickr.com/services/feeds/photos_public.gne?tags=monument&format=rss2)
+- [Peapix: Windows Spotlight](https://peapix.com/spotlight/feed)
+- [Peapix: Bing image of the day, United Kingdom](https://peapix.com/bing/feed?country=gb)
+
+Peapix Spotlight currently supplies no publication dates, so enable **Include
+undated items** or **Entire feed** for it. Peapix's feeds are treated as unrated;
+leave **Exclude unrated / unknown** off if you want their images displayed.
+Feed availability and contents are controlled by their publishers.
+
+## Settings worth knowing
+
+**Feed checks and caching.** Feeds are checked when the app opens, using the cache
+where it is still fresh. Imports and added/edited feeds trigger a check, and
+**Refresh / Retry** forces a new check. The refresh interval defaults to 24 hours
+while the app is open. No background checks run after it closes. The status shows
+the last successful check and when the cached feed contents were downloaded;
+those times can differ if the server reports that nothing has changed.
+
+**Image age and content filters.** The default maximum age is seven days.
+**Entire feed** removes the age restriction; otherwise **Include undated items**
+decides whether images without dates are eligible. Mature images are disabled by
+default, and the mature-content setting is global. Mature and unrated filtering
+depend on the ratings supplied by the feed.
+
+**Metadata captions.** Click **Metadata…** beside Global settings to show the
+title, author/credit, or both. Captions start after the transition, and their
+display period is capped to the image's effective duration. Text is white on a
+translucent black panel, with regular text as the default. To customise one feed,
+open **Edit…**, enable **Override global metadata**, then click **Metadata…**.
+
+**OPML versus settings backups.** OPML is for moving or sharing feed lists.
+**Backup… / Restore…** includes the complete configuration, including global
+settings, per-feed overrides, exclusions and advanced filters. Cached images are
+not included. After restoring a backup, click **Apply** or **OK** to save it.
+
+## Building
+
+### Requirements
+
+- Windows with **Visual Studio 2022**, including the **Desktop development with
+  C++** workload and a Windows SDK.
+- **CMake 3.24 or later** and **Git**, available on your command line.
+- A separate [darkmodelib](https://github.com/ozone10/darkmodelib) source checkout.
+- **Inno Setup 7** if you want to build the installer.
+
+See [Dependency revisions](docs/DEPENDENCIES.md) for the tested dependency
+versions and licenses. CMake downloads the pinned GoogleTest, PCRE2 and
+nlohmann/json sources if they are not already present.
+
+### Compile and test
+
+From the project folder in a Visual Studio 2022 Developer PowerShell, configure
+the x64 build with the path to your darkmodelib checkout:
+
+```powershell
+cmake --preset vs2022-x64 -DDARKMODELIB_ROOT="C:/src/darkmodelib"
 cmake --build --preset release
 ctest --preset release
+```
+
+Replace `C:/src/darkmodelib` with your actual path. The screensaver is written to
+`build/bin/Release/mRSSScreenSaver.scr`.
+
+To create the installer:
+
+```powershell
 cmake --build --preset release --target installer
 ```
 
-Configuration generates `build/mRSSScreenSaver.sln`. Dependencies are pinned:
-GoogleTest 1.17.0, PCRE2 10.46 and nlohmann/json 3.12.0. Existing `third_party`
-checkouts are used; otherwise CMake fetches the recorded commits. Regression
-tests use local fixtures and loopback networking, not internet feed content.
+The installer is written to
+`build/dist/mRSSScreenSaver-1.0.0-x64-setup.exe`. This target also runs the tests.
+If Inno Setup is not detected, set `INNO_COMPILER` to the full path of `ISCC.exe`
+when configuring. See the [Developer guide](docs/DEVELOPMENT.md) for more build
+options, diagnostics and implementation details.
 
-`DARKMODELIB_ROOT` defaults to the supplied `I:/darkmodelib` checkout and can be
-overridden during configuration. External source directories are not modified.
-Inno Setup is detected at `C:/Program Files/Inno Setup 7`; set `INNO_COMPILER` if
-needed. Build artifacts stay in `build`. Tests do not select a screensaver or
-change Windows security settings.
+## Troubleshooting
 
-## Current implementation
+- **Available, but no eligible images?** Check the age limit, undated setting,
+  ratings, URL exclusions and advanced filters. The Eligible column shows how
+  many images pass these rules out of the total found in the feed.
+- **A feed works in a browser but fails in the app?** A browser may be using a
+  logged-in session. A publisher may also refuse requests from particular
+  networks or VPN connections. Check the exact status message and retry.
+- **Configuring VPN split tunnelling?** The installed app is
+  `C:\Windows\System32\mRSSScreenSaver.scr`; `.scr` is the Windows screensaver
+  executable extension.
+- **An image format will not display?** Check **Codec status** and the
+  [Testing guide](docs/TESTING.md) for decoder requirements and known limitations.
 
-- Native C++ policy library: defaults, explicit timing overrides, HTTPS/HTTP URL
-  validation, credential rejection, URL redaction and literal exclusions.
-- Global maximum image age with explicit per-feed overrides, calendar-month
-  calculations, date eligibility and global rating policy.
-- Allowlisted image signature identification (a first gate, not a decoder).
-- Deterministic no-repeat shuffle cycles.
-- Bounded namespace-aware RSS 2.0/Atom parsing, mRSS rating inheritance and
-  image-enclosure extraction; DTDs and external entities prohibited.
-- Automatic JSON Feed 1.0/1.1 and Peapix Spotlight/Bing parsing, using explicit
-  image fields and image attachments with the same filtering/cache/decoder path.
-- Standard nested OPML import/export with XML escaping and duplicate detection.
-- GoogleTest regression coverage and Visual Studio x64 build/test presets.
-- Themed native settings, feed CRUD/order/status, duration overrides, OPML
-  settings extensions and full settings backups.
-- WinHTTP downloads, redirect/destination checks, credential suppression,
-  conditional requests, cancellation and bounded per-user caching.
-- Microsoft WIC still-image decoding and Direct2D/DXGI rendering, transitions,
-  Fit/Fill, a brightness-limited HDR path and multi-monitor mirroring.
-- Feed slideshow preview with Start/Previous/Play-Pause/Next/End, sequential and
-  shuffled playback, plus optional feed balancing.
-- Native `.scr` lifecycle and an installer with optional current-user selection.
-- Themed codec/confirmation/error dialogs and colour picker; feed actions and
-  dependent settings are disabled when they do not apply.
-- Themed About dialog with the build version, author/copyright and license.
+When reporting a problem, include the app version, Windows version, exact status
+message, and a public feed URL with any private tokens removed. For display
+problems, include the selected effect, monitor scaling and whether HDR is enabled.
 
-New feeds and legacy imports inherit global age and display-time settings unless
-an override is explicitly enabled. OPML imports with embedded per-feed JSON now
-use an explicit array and report malformed settings separately from feed limits.
+## More information
 
-The default transition duration is two seconds. Existing saved durations are
-preserved. The installer offers a Start menu folder choice and installs shortcuts
-for all users. The app and installer share an original landscape/RSS icon.
-Backup/Restore saves and loads the complete configuration, including feeds,
-exclusions and advanced filters, without the downloaded image cache.
+- [Developer guide](docs/DEVELOPMENT.md)
+- [Testing guide and acceptance checks](docs/TESTING.md)
+- [Detailed specification](docs/SPECIFICATION.md)
+- [Dependency revisions and licenses](docs/DEPENDENCIES.md)
 
-Transitions also include a perspective rotating cube, a six-piece collage
-assembly, and pan & zoom with a cross-fade. Pan & zoom continues gently during
-the image display interval and pauses with slideshow playback. Random mode has
-individual checkboxes for all seven effects; existing saved selections remain
-unchanged. Windows' disabled-animation preference still takes precedence.
-None is listed first without changing stored transition IDs. Settings performs
-an explicit cache-aware startup check; imports and Refresh / Retry force checks.
-The feed list has a separate Eligible (eligible/total) column before Status.
-The URL column is narrow by default to leave room for availability, last-success
-and cached-body timestamps in local time. Columns remain resizable, with
-horizontal scrolling for longer text. A successful 304 check advances last
-success while preserving the cached body's timestamp.
+## License
 
-Developer diagnostic: `build/Release/mrss_probe.exe --opml <file>` validates the
-actual parser/import path offline without saving settings or fetching URLs.
+© 2026 MorpheusUK. All Rights Reserved.
 
-The default appearance follows Windows. JPEG, PNG, GIF, BMP, TIFF, WebP and
-HEIC/HEIF are allowlisted; optional formats depend on installed Microsoft codecs.
-No HTML scraping, videos, documents, background services or host credentials.
-
-The global Metadata button configures optional image title and/or author/credit
-captions. Each feed can explicitly override those options (off by default).
-Choose an installed font family, 8–96 point size, top/bottom centre and a display
-period; the period is capped to that feed's effective image display time. Captions
-start after transitions and pause their countdown with playback. White text
-uses a translucent black panel; missing fields are omitted and long lines are
-trimmed. Options are included in backups and per-feed OPML settings extensions.
-Bold and Italic are independent options, both off by default; older settings
-retain regular text. Styles follow the same global/per-feed override rules.
-mRSS media:credit inheritance and Dublin Core creator fields supply author data
-alongside RSS/Atom and JSON Feed authors; Peapix supplies its credit text.
-
-Peapix feeds can be added directly:
-`https://peapix.com/spotlight/feed` and
-`https://peapix.com/bing/feed?country=gb`. Spotlight currently omits dates, so
-enable Include undated items (or Entire feed). Bing's calendar dates are treated
-as UTC midnight. JSON Feed uses date_published; date_modified does not make an
-older image new. These formats have no standard maturity rating, so images are
-unrated and are excluded if Exclude unrated / unknown is enabled. Peapix prefers
-fullUrl, then imageUrl; it never uses thumbnails as additional slideshow items.
-JSON Feed uses item.image and image attachments, without scraping content_html,
-following next_url, or treating decorative banner_image as a slideshow image.
-
-Release builds use MSVC 19.44 and Windows SDK 10.0.26100.0. The installer compiles
-with Inno Setup 7.1.1. Visual settings/preview checks use isolated workspace data.
-
-Clean-machine installation, upgrade/uninstall, optional codecs, mixed-DPI monitors
-and actual HDR photographs remain acceptance checks. This build is unsigned
-because no signing certificate was supplied. See the testing guide for HDR scope
-and current live-feed limitations.
+Original project code is licensed under the [GNU General Public License v3.0
+only](LICENSE). Third-party dependencies retain their own licenses; see
+[NOTICE.md](NOTICE.md) and [Dependency revisions](docs/DEPENDENCIES.md).
