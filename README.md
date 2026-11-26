@@ -167,6 +167,22 @@ problems, include the selected effect, monitor scaling and whether HDR is enable
 - [Detailed specification](docs/SPECIFICATION.md)
 - [Dependency revisions and licenses](docs/DEPENDENCIES.md)
 
+## Disclaimer
+
+mRSS Screen Saver is provided **“as is”, without warranty**, to the extent
+permitted by applicable law. Unless required by law or agreed in writing, the
+copyright holders and contributors are not liable for loss of data, loss of
+use, or other damages arising from using or being unable to use the software.
+
+Images and feed content come from third parties and are not controlled or
+endorsed by this project. Feed availability, accuracy and suitability are not
+guaranteed. Content filters depend on publisher metadata and cannot guarantee
+that all unwanted content will be excluded.
+
+The warranty and liability provisions in sections 15–17 of the [GPL v3
+license](LICENSE) apply. This notice does not restrict your rights under that
+license or exclude liability that cannot lawfully be excluded.
+
 ## License
 
 © 2026 MorpheusUK. All Rights Reserved.
